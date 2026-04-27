@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GamersTour – Compete. Conquer. Dominate.</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/animejs/dist/bundles/anime.umd.min.js"></script>
+<style>
+  :root {
+    --neon-green: #00ff88;
+    --neon-blue: #00d4ff;
+    --neon-red: #ff2d55;
+    --neon-purple: #b200ff;
+    --bg-deep: #020408;
+    --bg-card: #060d14;
+    --bg-card2: #0a1520;
+    --text-main: #e8f4ff;
+    --text-dim: #7a9ab8;
+    --border: rgba(0, 212, 255, 0.15);
+    --glow-green: 0 0 20px rgba(0,255,136,0.5), 0 0 40px rgba(0,255,136,0.2);
+    --glow-blue: 0 0 20px rgba(0,212,255,0.5), 0 0 40px rgba(0,212,255,0.2);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg-deep);
+    color: var(--text-main);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* ── CUSTOM CURSOR ── */
+  .cursor {
+    position: fixed; top: 0; left: 0; z-index: 9999;
+    pointer-events: none; mix-blend-mode: screen;
+  }
+  .cursor-dot {
+    width: 8px; height: 8px; background: var(--neon-green);
+    border-radius: 50%; transform: translate(-50%,-50%);
+    box-shadow: var(--glow-green);
+    transition: transform 0.1s;
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border: 1.5px solid rgba(0,255,136,0.5);
+    border-radius: 50%; transform: translate(-50%,-50%);
+    transition: all 0.12s ease;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 200px 200px;
+    pointer-events: none;
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg-deep); }
+  ::-webkit-scrollbar-thumb { background: var(--neon-green); border-radius: 2px; }
+
+  /* ── NAVBAR ── */
+  nav {
+    position: fixed; top: 0; width: 100%; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 5%;
+    background: rgba(2,4,8,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.4rem; font-weight: 900;
+    color: var(--neon-green);
+    text-shadow: var(--glow-green);
+    letter-spacing: 2px;
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--neon-blue); }
+
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a {
+    color: var(--text-dim); text-decoration: none;
+    font-size: 0.85rem; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase; transition: color 0.2s;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: ''; position: absolute; bottom: -4px; left: 0;
+    width: 0; height: 1px; background: var(--neon-green);
+    transition: width 0.3s;
+  }
+  .nav-links a:hover { color: var(--neon-green); }
+  .nav-links a:hover::after { width: 100%; }
+
+  .nav-cta {
+    background: transparent; border: 1px solid var(--neon-green);
+    color: var(--neon-green); padding: 10px 24px;
+    font-family: 'Orbitron', monospace; font-size: 0.75rem;
+    font-weight: 700; letter-spacing: 2px; cursor: pointer;
+    text-transform: uppercase; transition: all 0.3s;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+  .nav-cta:hover {
+    background: var(--neon-green); color: var(--bg-deep);
+    box-shadow: var(--glow-green);
+  }
+
+  .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+  .hamburger span { width: 24px; height: 2px; background: var(--neon-green); transition: 0.3s; }
+
+  /* ── HERO ── */
+  #hero {
+    position: relative; min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; padding: 120px 5% 60px;
+  }
+
+  /* animated grid bg */
+  .hero-grid {
+    position: absolute; inset: 0; z-index: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.05) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridPulse 8s ease-in-out infinite;
+  }
+  @keyframes gridPulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+
+  .hero-glow-1 {
+    position: absolute; top: -10%; left: -10%; width: 50%; height: 60%;
+    background: radial-gradient(ellipse, rgba(0,255,136,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-glow-2 {
+    position: absolute; bottom: -10%; right: -5%; width: 50%; height: 60%;
+    background: radial-gradient(ellipse, rgba(0,212,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-particles {
+    position: absolute; inset: 0; z-index: 0; overflow: hidden;
+  }
+  .particle {
+    position: absolute; width: 2px; height: 2px;
+    background: var(--neon-green); border-radius: 50%;
+    opacity: 0;
+  }
+
+  .hero-content {
+    position: relative; z-index: 2; text-align: center; max-width: 900px;
+  }
+  .hero-badge {
+    display: inline-block; margin-bottom: 24px;
+    background: rgba(0,255,136,0.08); border: 1px solid rgba(0,255,136,0.3);
+    padding: 6px 20px; font-size: 0.75rem; font-weight: 600;
+    letter-spacing: 4px; text-transform: uppercase; color: var(--neon-green);
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+    opacity: 0;
+  }
+  .hero-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(2.8rem, 8vw, 7rem);
+    font-weight: 900; line-height: 0.95;
+    letter-spacing: -2px; text-transform: uppercase;
+    opacity: 0;
+  }
+  .hero-title .line1 { display: block; color: var(--text-main); }
+  .hero-title .line2 {
+    display: block;
+    background: linear-gradient(90deg, var(--neon-green), var(--neon-blue));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-sub {
+    margin: 24px auto; max-width: 520px;
+    font-size: 1.1rem; font-weight: 300; color: var(--text-dim);
+    line-height: 1.7; opacity: 0;
+  }
+  .hero-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; opacity: 0; margin-top: 8px; }
+
+  .btn-primary {
+    padding: 16px 40px; font-family: 'Orbitron', monospace;
+    font-size: 0.8rem; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; cursor: pointer; border: none;
+    background: linear-gradient(135deg, var(--neon-green), #00b8ff);
+    color: var(--bg-deep); position: relative; overflow: hidden;
+    clip-path: polygon(16px 0%, 100% 0%, calc(100% - 16px) 100%, 0% 100%);
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none; display: inline-block;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--glow-green); }
+
+  .btn-outline {
+    padding: 15px 40px; font-family: 'Orbitron', monospace;
+    font-size: 0.8rem; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; cursor: pointer;
+    background: transparent; border: 1px solid rgba(0,212,255,0.5);
+    color: var(--neon-blue);
+    clip-path: polygon(16px 0%, 100% 0%, calc(100% - 16px) 100%, 0% 100%);
+    transition: all 0.2s; text-decoration: none; display: inline-block;
+  }
+  .btn-outline:hover { background: rgba(0,212,255,0.1); box-shadow: var(--glow-blue); }
+
+  .hero-stats {
+    margin-top: 64px; display: flex; gap: 40px; justify-content: center;
+    flex-wrap: wrap; opacity: 0;
+  }
+  .stat { text-align: center; }
+  .stat-value {
+    font-family: 'Orbitron', monospace; font-size: 2rem; font-weight: 900;
+    background: linear-gradient(135deg, var(--neon-green), var(--neon-blue));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .stat-label { font-size: 0.75rem; letter-spacing: 3px; color: var(--text-dim); text-transform: uppercase; }
+
+  /* ── SECTIONS ── */
+  section { position: relative; padding: 100px 5%; }
+  .section-label {
+    font-size: 0.7rem; letter-spacing: 5px; text-transform: uppercase;
+    color: var(--neon-green); font-weight: 600; margin-bottom: 12px;
+  }
+  .section-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 900; line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .section-title span { color: var(--neon-green); }
+  .section-sub { color: var(--text-dim); font-size: 1rem; max-width: 500px; line-height: 1.7; }
+
+  .section-header { margin-bottom: 60px; }
+
+  /* ── TICKER ── */
+  .ticker-wrap {
+    background: rgba(0,255,136,0.05);
+    border-top: 1px solid rgba(0,255,136,0.2);
+    border-bottom: 1px solid rgba(0,255,136,0.2);
+    padding: 12px 0; overflow: hidden; white-space: nowrap;
+  }
+  .ticker-track {
+    display: inline-block; animation: ticker 30s linear infinite;
+  }
+  .ticker-item {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin: 0 40px; font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem; color: var(--neon-green); letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .ticker-dot { width: 6px; height: 6px; background: var(--neon-green); border-radius: 50%; }
+  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* ── GAMES GRID ── */
+  #games { background: var(--bg-card); }
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  .game-card {
+    position: relative; overflow: hidden; cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--bg-card2);
+    transition: border-color 0.3s, transform 0.3s;
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+    opacity: 0; transform: translateY(40px);
+  }
+  .game-card:hover { border-color: var(--neon-green); transform: translateY(-6px); }
+  .game-card:hover .game-overlay { opacity: 1; }
+  .game-card:hover .game-img { transform: scale(1.08); }
+
+  .game-img-wrap { width: 100%; height: 200px; overflow: hidden; }
+  .game-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; display: block; }
+
+  .game-overlay {
+    position: absolute; inset: 0; opacity: 0;
+    background: linear-gradient(to top, rgba(0,255,136,0.15) 0%, transparent 60%);
+    transition: opacity 0.3s;
+  }
+
+  .game-info { padding: 18px 20px; }
+  .game-genre {
+    font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--neon-blue); font-weight: 600; margin-bottom: 6px;
+  }
+  .game-title { font-family: 'Orbitron', monospace; font-size: 0.95rem; font-weight: 700; margin-bottom: 8px; }
+  .game-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+  .game-rating { display: flex; align-items: center; gap: 4px; font-size: 0.8rem; color: #ffc800; }
+  .game-players { font-size: 0.75rem; color: var(--text-dim); font-family: 'Share Tech Mono'; }
+  .game-tag {
+    display: inline-block; padding: 3px 10px; font-size: 0.65rem;
+    letter-spacing: 2px; text-transform: uppercase; font-weight: 600;
+    background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3);
+    color: var(--neon-green); margin-top: 12px;
+  }
+
+  /* ── TOURNAMENTS ── */
+  #tournaments { background: var(--bg-deep); }
+  .tournaments-grid { display: grid; gap: 20px; }
+  .tournament-card {
+    display: grid; grid-template-columns: auto 1fr auto;
+    align-items: center; gap: 24px;
+    padding: 24px 28px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    transition: border-color 0.3s, background 0.3s;
+    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%);
+    opacity: 0; transform: translateX(-40px);
+  }
+  .tournament-card:hover { border-color: var(--neon-green); background: rgba(0,255,136,0.03); }
+
+  .tournament-rank {
+    font-family: 'Orbitron', monospace; font-size: 2.5rem; font-weight: 900;
+    color: rgba(0,255,136,0.15); line-height: 1; min-width: 60px; text-align: center;
+  }
+  .tournament-info { min-width: 0; }
+  .tournament-game { font-size: 0.7rem; letter-spacing: 3px; color: var(--neon-blue); text-transform: uppercase; margin-bottom: 4px; }
+  .tournament-name { font-family: 'Orbitron', monospace; font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tournament-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+  .t-tag {
+    padding: 3px 10px; font-size: 0.65rem; letter-spacing: 2px;
+    text-transform: uppercase; border: 1px solid var(--border);
+    color: var(--text-dim);
+  }
+  .t-tag.live { border-color: var(--neon-red); color: var(--neon-red); animation: livePulse 1.5s infinite; }
+  @keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+  .tournament-prize { text-align: right; }
+  .prize-amount {
+    font-family: 'Orbitron', monospace; font-size: 1.4rem; font-weight: 900;
+    color: var(--neon-green); text-shadow: var(--glow-green); white-space: nowrap;
+  }
+  .prize-label { font-size: 0.7rem; letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase; }
+
+  /* ── LEADERBOARD ── */
+  #leaderboard { background: var(--bg-card); }
+  .leaderboard-table { width: 100%; border-collapse: collapse; }
+  .leaderboard-table th {
+    padding: 12px 16px; text-align: left; font-size: 0.7rem;
+    letter-spacing: 3px; text-transform: uppercase; color: var(--text-dim);
+    border-bottom: 1px solid var(--border); font-weight: 600;
+  }
+  .leaderboard-table td { padding: 16px; vertical-align: middle; }
+  .lb-row {
+    border-bottom: 1px solid rgba(0,212,255,0.05);
+    transition: background 0.2s;
+    opacity: 0;
+  }
+  .lb-row:hover { background: rgba(0,255,136,0.03); }
+
+  .lb-rank { font-family: 'Orbitron', monospace; font-size: 1rem; font-weight: 700; color: var(--text-dim); }
+  .lb-rank.gold { color: #ffd700; text-shadow: 0 0 12px rgba(255,215,0,0.5); }
+  .lb-rank.silver { color: #c0c0c0; }
+  .lb-rank.bronze { color: #cd7f32; }
+
+  .lb-player { display: flex; align-items: center; gap: 12px; }
+  .lb-avatar {
+    width: 42px; height: 42px; border-radius: 50%;
+    border: 2px solid var(--border);
+    background: linear-gradient(135deg, var(--neon-green), var(--neon-blue));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Orbitron', monospace; font-size: 0.85rem; font-weight: 700;
+    color: var(--bg-deep);
+  }
+  .lb-name { font-weight: 700; font-size: 0.95rem; }
+  .lb-country { font-size: 0.75rem; color: var(--text-dim); }
+  .lb-score { font-family: 'Orbitron', monospace; font-size: 0.9rem; font-weight: 700; color: var(--neon-green); }
+  .lb-wins { font-family: 'Share Tech Mono'; font-size: 0.85rem; color: var(--text-dim); }
+  .lb-bar-wrap { width: 120px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; }
+  .lb-bar { height: 100%; background: linear-gradient(90deg, var(--neon-green), var(--neon-blue)); border-radius: 2px; width: 0; transition: width 1s ease; }
+
+  /* ── FEATURES ── */
+  #features { background: var(--bg-deep); }
+  .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }
+  .feature-card {
+    padding: 32px 28px; background: var(--bg-card); border: 1px solid var(--border);
+    position: relative; overflow: hidden;
+    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%);
+    transition: border-color 0.3s; opacity: 0; transform: scale(0.9);
+  }
+  .feature-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--neon-green), var(--neon-blue));
+    transform: scaleX(0); transform-origin: left; transition: transform 0.4s;
+  }
+  .feature-card:hover { border-color: var(--neon-green); }
+  .feature-card:hover::before { transform: scaleX(1); }
+
+  .feature-icon {
+    width: 56px; height: 56px; margin-bottom: 20px;
+    background: rgba(0,255,136,0.08); border: 1px solid rgba(0,255,136,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  }
+  .feature-title { font-family: 'Orbitron', monospace; font-size: 0.95rem; font-weight: 700; margin-bottom: 10px; }
+  .feature-desc { color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; }
+
+  /* ── NEWSLETTER ── */
+  #newsletter {
+    background: linear-gradient(135deg, rgba(0,255,136,0.04) 0%, rgba(0,212,255,0.04) 100%);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    text-align: center; padding: 80px 5%;
+  }
+  .newsletter-box { max-width: 520px; margin: 0 auto; }
+  .newsletter-form { display: flex; gap: 12px; margin-top: 32px; flex-wrap: wrap; justify-content: center; }
+  .newsletter-input {
+    flex: 1; min-width: 220px; padding: 14px 20px;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+    color: var(--text-main); font-family: 'Rajdhani', sans-serif;
+    font-size: 0.95rem; outline: none;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    transition: border-color 0.3s;
+  }
+  .newsletter-input:focus { border-color: var(--neon-green); }
+  .newsletter-input::placeholder { color: var(--text-dim); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: #010306; padding: 60px 5% 30px;
+    border-top: 1px solid var(--border);
+  }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 60px; }
+  .footer-brand p { color: var(--text-dim); font-size: 0.9rem; line-height: 1.8; margin-top: 16px; max-width: 260px; }
+  .footer-social { display: flex; gap: 12px; margin-top: 20px; }
+  .social-btn {
+    width: 38px; height: 38px; border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; cursor: pointer; transition: all 0.3s;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+    text-decoration: none; color: var(--text-dim);
+  }
+  .social-btn:hover { border-color: var(--neon-green); color: var(--neon-green); box-shadow: var(--glow-green); }
+
+  .footer-col h4 { font-family: 'Orbitron', monospace; font-size: 0.75rem; letter-spacing: 3px; margin-bottom: 20px; color: var(--neon-green); text-transform: uppercase; }
+  .footer-col ul { list-style: none; }
+  .footer-col li { margin-bottom: 10px; }
+  .footer-col a { color: var(--text-dim); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+  .footer-col a:hover { color: var(--neon-green); }
+
+  .footer-bottom {
+    border-top: 1px solid var(--border); padding-top: 24px;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .footer-bottom p { font-size: 0.8rem; color: var(--text-dim); font-family: 'Share Tech Mono'; }
+
+  /* ── MOBILE NAV ── */
+  .mobile-menu {
+    display: none; position: fixed; inset: 0; z-index: 99;
+    background: rgba(2,4,8,0.97); backdrop-filter: blur(16px);
+    flex-direction: column; align-items: center; justify-content: center; gap: 32px;
+  }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu a { font-family: 'Orbitron', monospace; font-size: 1.2rem; color: var(--text-main); text-decoration: none; letter-spacing: 3px; transition: color 0.2s; }
+  .mobile-menu a:hover { color: var(--neon-green); }
+  .close-menu { position: absolute; top: 24px; right: 5%; font-size: 1.5rem; color: var(--neon-green); background: none; border: none; cursor: pointer; font-family: 'Orbitron'; }
+
+  /* ── SCROLL REVEAL ── */
+  .reveal { opacity: 0; transform: translateY(40px); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .nav-links, .nav-cta { display: none; }
+    .hamburger { display: flex; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .tournament-card { grid-template-columns: auto 1fr; }
+    .tournament-prize { display: none; }
+  }
+  @media (max-width: 600px) {
+    section { padding: 70px 5%; }
+    .hero-stats { gap: 24px; }
+    .stat-value { font-size: 1.5rem; }
+    .footer-grid { grid-template-columns: 1fr; }
+    .games-grid { grid-template-columns: 1fr; }
+    .tournament-card { grid-template-columns: 1fr; }
+    .tournament-rank { display: none; }
+    .lb-bar-wrap, .lb-wins { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div class="cursor">
+  <div class="cursor-dot" id="cursorDot"></div>
+</div>
+<div style="position:fixed;top:0;left:0;z-index:9998;pointer-events:none;">
+  <div class="cursor-ring" id="cursorRing"></div>
+</div>
+
+<!-- Navbar -->
+<nav id="navbar">
+  <a href="#" class="nav-logo">Gamers<span>Tour</span></a>
+  <ul class="nav-links">
+    <li><a href="#games">Games</a></li>
+    <li><a href="#tournaments">Tournaments</a></li>
+    <li><a href="#leaderboard">Leaderboard</a></li>
+    <li><a href="#features">Features</a></li>
+  </ul>
+  <button class="nav-cta" onclick="location.href='#newsletter'">Join Now</button>
+  <div class="hamburger" onclick="openMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- Mobile menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="close-menu" onclick="closeMenu()">✕</button>
+  <a href="#games" onclick="closeMenu()">Games</a>
+  <a href="#tournaments" onclick="closeMenu()">Tournaments</a>
+  <a href="#leaderboard" onclick="closeMenu()">Leaderboard</a>
+  <a href="#features" onclick="closeMenu()">Features</a>
+  <a href="#newsletter" onclick="closeMenu()">Join Now</a>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow-1"></div>
+  <div class="hero-glow-2"></div>
+  <div class="hero-particles" id="particles"></div>
+  <div class="hero-content">
+    <div class="hero-badge" id="heroBadge">🎮 World's #1 Gaming Platform</div>
+    <h1 class="hero-title" id="heroTitle">
+      <span class="line1">Compete.</span>
+      <span class="line2">Dominate.</span>
+    </h1>
+    <p class="hero-sub" id="heroSub">Join millions of elite gamers. Compete in epic tournaments, track your rank, and climb to the top of the global leaderboard.</p>
+    <div class="hero-actions" id="heroActions">
+      <a href="#games" class="btn-primary">Start Playing</a>
+      <a href="#tournaments" class="btn-outline">View Tournaments</a>
+    </div>
+    <div class="hero-stats" id="heroStats">
+      <div class="stat">
+        <div class="stat-value" data-target="4.2">0</div>
+        <div class="stat-label">Million Players</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" data-target="1800">0</div>
+        <div class="stat-label">Active Tournaments</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" data-target="94">0</div>
+        <div class="stat-label">Countries</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" data-target="50">0</div>
+        <div class="stat-label">M+ Prize Pool</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-track" id="ticker">
+    <span class="ticker-item"><span class="ticker-dot"></span> GTA V Tournament – $50,000 Prize</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Elden Ring Championship – LIVE NOW</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Cyberpunk 2077 Speedrun – New Record</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Red Dead Online Showdown – Registration Open</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Spider-Man Miles Morales Cup – Starts in 3h</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Hogwarts Legacy Challenge – $25,000</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> GTA V Tournament – $50,000 Prize</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Elden Ring Championship – LIVE NOW</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Cyberpunk 2077 Speedrun – New Record</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Red Dead Online Showdown – Registration Open</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Spider-Man Miles Morales Cup – Starts in 3h</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Hogwarts Legacy Challenge – $25,000</span>
+  </div>
+</div>
+
+<!-- GAMES -->
+<section id="games">
+  <div class="section-header">
+    <p class="section-label">// Featured Games</p>
+    <h2 class="section-title">Top <span>Competitive</span> Titles</h2>
+    <p class="section-sub">Battle-tested games with massive prize pools and active global communities.</p>
+  </div>
+  <div class="games-grid" id="gamesGrid">
+
+    <div class="game-card">
+      <div class="game-img-wrap">
+        <img class="game-img" src="https://images.igdb.com/igdb/image/upload/t_cover_big/co2lbd.jpg" alt="GTA V"
+          onerror="this.style.background='linear-gradient(135deg,#0f2027,#1a3a4c)';this.src='';this.alt='GTA V'">
+        <div class="game-overlay"></div>
+      </div>
+      <div class="game-info">
+        <div class="game-genre">Open World / Action</div>
+        <div class="game-title">Grand Theft Auto V</div>
+        <div class="game-meta">
+          <span class="game-rating">⭐ 9.8</span>
+          <span class="game-players">🎮 124K online</span>
+        </div>
+        <div class="game-tag">Active Tournament</div>
+      </div>
+    </div>
+
+    <div class="game-card">
+      <div class="game-img-wrap">
+        <img class="game-img" src="https://images.igdb.com/igdb/image/upload/t_cover_big/co4hna.jpg" alt="Cyberpunk 2077"
+          onerror="this.style.background='linear-gradient(135deg,#0a0020,#1a0040)';this.src='';this.alt='Cyberpunk 2077'">
+        <div class="game-overlay"></div>
+      </div>
+      <div class="game-info">
+        <div class="game-genre">RPG / Sci-Fi</div>
+        <div class="game-title">Cyberpunk 2077</div>
+        <div class="game-meta">
+          <span class="game-rating">⭐ 9.5</span>
+          <span class="game-players">🎮 89K online</span>
+        </div>
+        <div class="game-tag">Speedrun Event</div>
+      </div>
+    </div>
+
+    <div class="game-card">
+      <div class="game-img-wrap">
+        <img class="game-img" src="https://images.igdb.com/igdb/image/upload/t_cover_big/co1q1f.jpg" alt="Elden Ring"
+          onerror="this.style.background='linear-gradient(135deg,#1a0800,#2a1500)';this.src='';this.alt='Elden Ring'">
+        <div class="game-overlay"></div>
+      </div>
+      <div class="game-info">
+        <div class="game-genre">Action RPG / Fantasy</div>
+        <div class="game-title">Elden Ring</div>
+        <div class="game-meta">
+          <span class="game-rating">⭐ 9.9</span>
+          <span class="game-players">🎮 76K online</span>
+        </div>
+        <div class="game-tag">🔴 Live Now</div>
+      </div>
+    </div>
+
+    <div class="game-card">
+      <div class="game-img-wrap">
+        <img class="game-img" src="https://images.igdb.com/igdb/image/upload/t_cover_big/co1q1i.jpg" alt="Red Dead Redemption 2"
+          onerror="this.style.background='linear-gradient(135deg,#1a0900,#2a1800)';this.src='';this.alt='Red Dead 2'">
+        <div class="game-overlay"></div>
+      </div>
+      <div class="game-info">
+        <div class="game-genre">Western / Action</div>
+        <div class="game-title">Red Dead Redemption 2</div>
+        <div class="game-meta">
+          <span class="game-rating">⭐ 9.7</span>
+          <span class="game-players">🎮 52K online</span>
+        </div>
+        <div class="game-tag">Online Showdown</div>
+      </div>
+    </div>
+
+    <div class="game-card">
+      <div class="game-img-wrap">
+        <img class="game-img" src="https://images.igdb.com/igdb/image/upload/t_cover_big/co2ekt.jpg" alt="Spider-Man"
+          onerror="this.style.background='linear-gradient(135deg,#0d001a,#1a0033)';this.src='';this.alt='Spider-Man'">
+        <div class="game-overlay"></div>
+      </div>
+      <div class="game-info">
+        <div class="game-genre">Action / Superhero</div>
+        <div class="game-title">Spider-Man: Miles Morales</div>
+        <div class="game-meta">
+          <span class="game-rating">⭐ 9.4</span>
+          <span class="game-players">🎮 41K online</span>
+        </div>
+        <div class="game-tag">Time Trial</div>
+      </div>
+    </div>
+
+    <div class="game-card">
+      <div class="game-img-wrap">
+        <img class="game-img" src="https://images.igdb.com/igdb/image/upload/t_cover_big/co5vmg.jpg" alt="Hogwarts Legacy"
+          onerror="this.style.background='linear-gradient(135deg,#060028,#120050)';this.src='';this.alt='Hogwarts Legacy'">
+        <div class="game-overlay"></div>
+      </div>
+      <div class="game-info">
+        <div class="game-genre">RPG / Fantasy</div>
+        <div class="game-title">Hogwarts Legacy</div>
+        <div class="game-meta">
+          <span class="game-rating">⭐ 9.2</span>
+          <span class="game-players">🎮 38K online</span>
+        </div>
+        <div class="game-tag">Challenge Cup</div>
+      </div>
+    </div>
+
+    <div class="game-card">
+      <div class="game-img-wrap">
+        <img class="game-img" src="https://images.igdb.com/igdb/image/upload/t_cover_big/co3wk8.jpg" alt="God of War"
+          onerror="this.style.background='linear-gradient(135deg,#1a0000,#2a0505)';this.src='';this.alt='God of War'">
+        <div class="game-overlay"></div>
+      </div>
+      <div class="game-info">
+        <div class="game-genre">Action / Mythology</div>
+        <div class="game-title">God of War: Ragnarök</div>
+        <div class="game-meta">
+          <span class="game-rating">⭐ 9.9</span>
+          <span class="game-players">🎮 63K online</span>
+        </div>
+        <div class="game-tag">Boss Rush Event</div>
+      </div>
+    </div>
+
+    <div class="game-card">
+      <div class="game-img-wrap">
+        <img class="game-img" src="https://images.igdb.com/igdb/image/upload/t_cover_big/co5vmg.jpg" alt="The Witcher 3"
+          onerror="this.style.background='linear-gradient(135deg,#001a00,#003300)';this.src='';this.alt='Witcher 3'">
+        <div class="game-overlay"></div>
+      </div>
+      <div class="game-info">
+        <div class="game-genre">RPG / Dark Fantasy</div>
+        <div class="game-title">The Witcher 3: Wild Hunt</div>
+        <div class="game-meta">
+          <span class="game-rating">⭐ 9.8</span>
+          <span class="game-players">🎮 47K online</span>
+        </div>
+        <div class="game-tag">Lore Master Cup</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- TOURNAMENTS -->
+<section id="tournaments">
+  <div class="section-header">
+    <p class="section-label">// Active Events</p>
+    <h2 class="section-title">Live <span>Tournaments</span></h2>
+    <p class="section-sub">Compete for massive prize pools across all game genres. Register now before spots fill up.</p>
+  </div>
+  <div class="tournaments-grid" id="tourGrid">
+
+    <div class="tournament-card">
+      <div class="tournament-rank">01</div>
+      <div class="tournament-info">
+        <div class="tournament-game">Grand Theft Auto V</div>
+        <div class="tournament-name">GTA V Heist Masters Invitational 2025</div>
+        <div class="tournament-tags">
+          <span class="t-tag live">🔴 Live</span>
+          <span class="t-tag">512 Players</span>
+          <span class="t-tag">Solo</span>
+          <span class="t-tag">PC / Console</span>
+        </div>
+      </div>
+      <div class="tournament-prize">
+        <div class="prize-amount">$50,000</div>
+        <div class="prize-label">Prize Pool</div>
+      </div>
+    </div>
+
+    <div class="tournament-card">
+      <div class="tournament-rank">02</div>
+      <div class="tournament-info">
+        <div class="tournament-game">Elden Ring</div>
+        <div class="tournament-name">Shadow of the Erdtree Championship</div>
+        <div class="tournament-tags">
+          <span class="t-tag live">🔴 Live</span>
+          <span class="t-tag">256 Players</span>
+          <span class="t-tag">Solo</span>
+          <span class="t-tag">All Platforms</span>
+        </div>
+      </div>
+      <div class="tournament-prize">
+        <div class="prize-amount">$35,000</div>
+        <div class="prize-label">Prize Pool</div>
+      </div>
+    </div>
+
+    <div class="tournament-card">
+      <div class="tournament-rank">03</div>
+      <div class="tournament-info">
+        <div class="tournament-game">Cyberpunk 2077</div>
+        <div class="tournament-name">Night City Speedrun World Cup</div>
+        <div class="tournament-tags">
+          <span class="t-tag" style="border-color:#ffc800;color:#ffc800;">Registration Open</span>
+          <span class="t-tag">Unlimited</span>
+          <span class="t-tag">Speedrun</span>
+          <span class="t-tag">PC Only</span>
+        </div>
+      </div>
+      <div class="tournament-prize">
+        <div class="prize-amount">$20,000</div>
+        <div class="prize-label">Prize Pool</div>
+      </div>
+    </div>
+
+    <div class="tournament-card">
+      <div class="tournament-rank">04</div>
+      <div class="tournament-info">
+        <div class="tournament-game">God of War: Ragnarök</div>
+        <div class="tournament-name">Valhalla Boss Rush Challenge Series</div>
+        <div class="tournament-tags">
+          <span class="t-tag" style="border-color:#ffc800;color:#ffc800;">Registration Open</span>
+          <span class="t-tag">128 Players</span>
+          <span class="t-tag">Teams</span>
+          <span class="t-tag">PS4 / PS5</span>
+        </div>
+      </div>
+      <div class="tournament-prize">
+        <div class="prize-amount">$15,000</div>
+        <div class="prize-label">Prize Pool</div>
+      </div>
+    </div>
+
+    <div class="tournament-card">
+      <div class="tournament-rank">05</div>
+      <div class="tournament-info">
+        <div class="tournament-game">Spider-Man: Miles Morales</div>
+        <div class="tournament-name">Miles Morales Swing-Time World Tour</div>
+        <div class="tournament-tags">
+          <span class="t-tag">Starts in 3h</span>
+          <span class="t-tag">200 Players</span>
+          <span class="t-tag">Time Trial</span>
+          <span class="t-tag">PC / PS5</span>
+        </div>
+      </div>
+      <div class="tournament-prize">
+        <div class="prize-amount">$12,000</div>
+        <div class="prize-label">Prize Pool</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- LEADERBOARD -->
+<section id="leaderboard">
+  <div class="section-header">
+    <p class="section-label">// Global Rankings</p>
+    <h2 class="section-title">World <span>Leaderboard</span></h2>
+    <p class="section-sub">Top-ranked players competing globally across all game categories.</p>
+  </div>
+  <table class="leaderboard-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Player</th>
+        <th>Score</th>
+        <th>Wins</th>
+        <th>Win Rate</th>
+      </tr>
+    </thead>
+    <tbody id="lbBody">
+      <tr class="lb-row"><td><span class="lb-rank gold">01</span></td><td><div class="lb-player"><div class="lb-avatar">ZX</div><div><div class="lb-name">ZeroX_Alpha</div><div class="lb-country">🇺🇸 United States</div></div></div></td><td><span class="lb-score">998,412</span></td><td class="lb-wins">347W / 12L</td><td><div class="lb-bar-wrap"><div class="lb-bar" data-width="97"></div></div></td></tr>
+      <tr class="lb-row"><td><span class="lb-rank silver">02</span></td><td><div class="lb-player"><div class="lb-avatar" style="background:linear-gradient(135deg,#c0c0c0,#808080);">NK</div><div><div class="lb-name">NightKing_Pro</div><div class="lb-country">🇰🇷 South Korea</div></div></div></td><td><span class="lb-score">987,055</span></td><td class="lb-wins">312W / 18L</td><td><div class="lb-bar-wrap"><div class="lb-bar" data-width="94"></div></div></td></tr>
+      <tr class="lb-row"><td><span class="lb-rank bronze">03</span></td><td><div class="lb-player"><div class="lb-avatar" style="background:linear-gradient(135deg,#cd7f32,#8B4513);">SB</div><div><div class="lb-name">ShadowBlade99</div><div class="lb-country">🇧🇷 Brazil</div></div></div></td><td><span class="lb-score">971,330</span></td><td class="lb-wins">298W / 22L</td><td><div class="lb-bar-wrap"><div class="lb-bar" data-width="90"></div></div></td></tr>
+      <tr class="lb-row"><td><span class="lb-rank">04</span></td><td><div class="lb-player"><div class="lb-avatar" style="background:linear-gradient(135deg,#ff2d55,#b200ff);">GH</div><div><div class="lb-name">GhostHunter_VII</div><div class="lb-country">🇬🇧 United Kingdom</div></div></div></td><td><span class="lb-score">955,700</span></td><td class="lb-wins">280W / 28L</td><td><div class="lb-bar-wrap"><div class="lb-bar" data-width="85"></div></div></td></tr>
+      <tr class="lb-row"><td><span class="lb-rank">05</span></td><td><div class="lb-player"><div class="lb-avatar" style="background:linear-gradient(135deg,#00d4ff,#0066ff);">VX</div><div><div class="lb-name">VortexStrike</div><div class="lb-country">🇩🇪 Germany</div></div></div></td><td><span class="lb-score">940,120</span></td><td class="lb-wins">265W / 35L</td><td><div class="lb-bar-wrap"><div class="lb-bar" data-width="80"></div></div></td></tr>
+      <tr class="lb-row"><td><span class="lb-rank">06</span></td><td><div class="lb-player"><div class="lb-avatar" style="background:linear-gradient(135deg,#ff8c00,#ff4500);">CT</div><div><div class="lb-name">CyberTitan_EX</div><div class="lb-country">🇯🇵 Japan</div></div></div></td><td><span class="lb-score">920,875</span></td><td class="lb-wins">241W / 40L</td><td><div class="lb-bar-wrap"><div class="lb-bar" data-width="75"></div></div></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-header">
+    <p class="section-label">// Why GamersTour</p>
+    <h2 class="section-title">Built for <span>Champions</span></h2>
+  </div>
+  <div class="features-grid" id="featGrid">
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <div class="feature-title">Zero-Lag Matchmaking</div>
+      <p class="feature-desc">Our AI-powered system matches you with opponents at your exact skill level in under 10 seconds, globally.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🏆</div>
+      <div class="feature-title">Instant Payouts</div>
+      <p class="feature-desc">Win and get paid within 24 hours. We support crypto, PayPal, and bank transfers to 90+ countries.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🛡️</div>
+      <div class="feature-title">Anti-Cheat Engine</div>
+      <p class="feature-desc">Our proprietary cheat detection ensures a 100% fair competitive environment for every match.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <div class="feature-title">Performance Analytics</div>
+      <p class="feature-desc">Deep stats, heatmaps, and AI-powered coaching insights to help you level up your game.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🌐</div>
+      <div class="feature-title">Global Network</div>
+      <p class="feature-desc">56 server nodes across 6 continents. Always connect to a server under 20ms from anywhere.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎙️</div>
+      <div class="feature-title">Live Spectator Mode</div>
+      <p class="feature-desc">Watch pro matches live with dynamic commentary, instant replays, and interactive overlays.</p>
+    </div>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section id="newsletter">
+  <div class="newsletter-box reveal">
+    <p class="section-label" style="text-align:center">// Stay in the Game</p>
+    <h2 class="section-title" style="text-align:center;font-size:2rem">Get <span>Tournament Alerts</span></h2>
+    <p style="color:var(--text-dim);text-align:center;margin-top:12px">Be the first to know when new tournaments go live. No spam, ever.</p>
+    <div class="newsletter-form">
+      <input type="email" class="newsletter-input" placeholder="your@email.com">
+      <button class="btn-primary" style="clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%)">Subscribe</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="#" class="nav-logo" style="font-size:1.6rem">Gamers<span>Tour</span></a>
+      <p>The world's most competitive gaming platform. Play, compete, and earn with millions of gamers worldwide.</p>
+      <div class="footer-social">
+        <a class="social-btn" href="#">𝕏</a>
+        <a class="social-btn" href="#">in</a>
+        <a class="social-btn" href="#">▶</a>
+        <a class="social-btn" href="#">📸</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Platform</h4>
+      <ul>
+        <li><a href="#">Games</a></li>
+        <li><a href="#">Tournaments</a></li>
+        <li><a href="#">Leaderboard</a></li>
+        <li><a href="#">Live Streams</a></li>
+        <li><a href="#">Coaching</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Press Kit</a></li>
+        <li><a href="#">Partners</a></li>
+        <li><a href="#">Blog</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Support</h4>
+      <ul>
+        <li><a href="#">Help Center</a></li>
+        <li><a href="#">Contact Us</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Service</a></li>
+        <li><a href="#">Anti-Cheat Policy</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 GamersTour. All rights reserved.</p>
+    <p style="font-family:'Share Tech Mono';font-size:0.75rem;color:var(--text-dim)">STATUS: <span style="color:var(--neon-green)">● ALL SYSTEMS OPERATIONAL</span></p>
+  </div>
+</footer>
+
+<script>
+const { animate, stagger, createTimer } = anime;
+
+/* ── CURSOR ── */
+const dot = document.getElementById('cursorDot');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+const cursor = document.querySelector('.cursor');
+function updateCursor() {
+  dot.style.transform = `translate(${mx}px, ${my}px) translate(-50%,-50%)`;
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%,-50%)`;
+  requestAnimationFrame(updateCursor);
+}
+updateCursor();
+document.querySelectorAll('a,button,.game-card,.tournament-card').forEach(el => {
+  el.addEventListener('mouseenter', () => ring.style.transform += ' scale(1.8)');
+  el.addEventListener('mouseleave', () => {});
+});
+
+/* ── HERO ANIMATIONS ── */
+animate('#heroBadge', { opacity: [0, 1], translateY: [20, 0], duration: 800, ease: 'outExpo', delay: 300 });
+animate('#heroTitle', { opacity: [0, 1], translateY: [60, 0], duration: 1000, ease: 'outExpo', delay: 500 });
+animate('#heroSub',   { opacity: [0, 1], translateY: [30, 0], duration: 800, ease: 'outExpo', delay: 800 });
+animate('#heroActions', { opacity: [0, 1], translateY: [20, 0], duration: 800, ease: 'outExpo', delay: 1000 });
+animate('#heroStats', { opacity: [0, 1], translateY: [30, 0], duration: 800, ease: 'outExpo', delay: 1200 });
+
+/* ── PARTICLES ── */
+const particleContainer = document.getElementById('particles');
+for (let i = 0; i < 50; i++) {
+  const p = document.createElement('div');
+  p.className = 'particle';
+  p.style.left = Math.random() * 100 + '%';
+  p.style.top = Math.random() * 100 + '%';
+  particleContainer.appendChild(p);
+}
+animate('.particle', {
+  opacity: [0, 1, 0],
+  translateY: { from: '0px', to: () => `-${30 + Math.random()*80}px` },
+  translateX: { from: '0px', to: () => `${(Math.random()-0.5)*40}px` },
+  scale: [0, 1.5, 0],
+  duration: () => 2000 + Math.random() * 3000,
+  delay: stagger(100, { start: 0 }),
+  loop: true,
+  ease: 'inOutSine',
+});
+
+/* ── STAT COUNTERS ── */
+setTimeout(() => {
+  document.querySelectorAll('[data-target]').forEach(el => {
+    const target = parseFloat(el.dataset.target);
+    const isFloat = target % 1 !== 0;
+    let current = 0;
+    const step = target / 80;
+    const interval = setInterval(() => {
+      current = Math.min(current + step, target);
+      el.textContent = isFloat ? current.toFixed(1) + 'M+' : Math.floor(current) + (target >= 1000 ? '+' : '');
+      if (current >= target) clearInterval(interval);
+    }, 20);
+  });
+}, 1300);
+
+/* ── SCROLL REVEAL ── */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const el = entry.target;
+
+    if (el.id === 'gamesGrid') {
+      animate('.game-card', {
+        opacity: [0, 1], translateY: [40, 0],
+        duration: 700, delay: stagger(80), ease: 'outExpo'
+      });
+      // Animate LB bars
+    } else if (el.id === 'tourGrid') {
+      animate('.tournament-card', {
+        opacity: [0, 1], translateX: [-40, 0],
+        duration: 700, delay: stagger(100), ease: 'outExpo'
+      });
+    } else if (el.id === 'lbBody') {
+      animate('.lb-row', {
+        opacity: [0, 1], translateX: [30, 0],
+        duration: 600, delay: stagger(80), ease: 'outExpo',
+      });
+      setTimeout(() => {
+        document.querySelectorAll('.lb-bar').forEach(bar => {
+          bar.style.width = bar.dataset.width + '%';
+        });
+      }, 600);
+    } else if (el.id === 'featGrid') {
+      animate('.feature-card', {
+        opacity: [0, 1], scale: [0.9, 1],
+        duration: 600, delay: stagger(80), ease: 'outBack(1.4)'
+      });
+    } else if (el.classList.contains('reveal')) {
+      animate(el, { opacity: [0,1], translateY: [30,0], duration: 700, ease: 'outExpo' });
+    }
+    observer.unobserve(el);
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('#gamesGrid, #tourGrid, #lbBody, #featGrid, .reveal').forEach(el => observer.observe(el));
+
+/* ── NAV BACKGROUND ── */
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('navbar');
+  nav.style.background = window.scrollY > 50 ? 'rgba(2,4,8,0.98)' : 'rgba(2,4,8,0.85)';
+});
+
+/* ── MOBILE MENU ── */
+function openMenu() { document.getElementById('mobileMenu').classList.add('open'); }
+function closeMenu() { document.getElementById('mobileMenu').classList.remove('open'); }
+
+/* ── NEON GLITCH on title ── */
+const title = document.querySelector('.hero-title');
+setInterval(() => {
+  title.style.textShadow = '2px 0 #ff2d55, -2px 0 #00d4ff';
+  setTimeout(() => title.style.textShadow = 'none', 80);
+}, 4000);
+
+/* ── BUTTON CLICK RIPPLE ── */
+document.querySelectorAll('.btn-primary, .btn-outline, .nav-cta').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    animate(this, { scale: [1, 0.95, 1], duration: 200, ease: 'outQuad' });
+  });
+});
+</script>
+</body>
+</html>
